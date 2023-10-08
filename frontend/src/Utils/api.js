@@ -37,3 +37,31 @@ export const upload = async (formData) => {
     throw error;
   }
 };
+
+export const files = async (userId) => {
+  try {
+    const response = await api.get("/files", {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      params: { userId },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteFile = async (fileIdx, userId) => {
+  try {
+    const response = await api.delete("/delete", {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { fileIdx, userId },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

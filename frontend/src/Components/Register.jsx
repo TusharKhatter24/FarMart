@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { loginUser } from "../Utils/actions";
 import { register } from "../Utils/api";
 import CustomSnackbar from "../Common/Snackbar";
+import { TextField, Button, Typography, Container, CssBaseline } from '@mui/material';
 
 const Register = () => {
 
@@ -67,43 +68,70 @@ const Register = () => {
     };
 
     return (
-        <div className="register">
-            <h2>Registration</h2>
-            <form onSubmit={handleSubmit}>
-                <p>Name</p>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                />
-                <p>Email</p>
-                <input
-                    type="text"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
-                <p>Password</p>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                />
-                <button type="submit">Register</button>
-            </form>
+        <Container component="main" maxWidth="xs">
             <CustomSnackbar
                 open={openSnackbar}
                 message={snackbarMessage}
                 severity={snackbarSeverity}
                 onClose={handleSnackbarClose}
             />
-        </div>
+            <div className="form-container">
+                <Typography component="h1" variant="h5">
+                    Registration
+                </Typography>
+                <form className="form-container" onSubmit={handleSubmit} noValidate>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="name"
+                        label="Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="input-field"
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="email"
+                        label="Email Address"
+                        name="email"
+                        autoComplete="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="input-field"
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        autoComplete="new-password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="input-field"
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className="submit-button"
+                    >
+                        Register
+                    </Button>
+                </form>
+            </div>
+        </Container>
     );
-};
+}
 
 export default Register;

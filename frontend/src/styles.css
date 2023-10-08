@@ -4,45 +4,78 @@
 }
 
 #root {
-    background: yellow;
+    background: rgb(175, 174, 174);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* justify-content: center;
-    align-items: center; */
 }
 
 .header {
     display: flex;
-    gap: 10px;
-    background: pink;
+    gap: 20px;
+    background: rgb(32, 32, 32);
     padding: 10px;
 }
 
-.register {
-    border: 1px solid black;
-    min-width: 500px;
-    align-self: center;
-    justify-self: center;
+.link {
+    color: white;
+    text-decoration: none;
 }
 
-.login {
-    border: 1px solid black;
-    min-width: 500px;
-    align-self: center;
-    justify-self: center;
-}
-
-.files {
-    border: 1px solid black;
-    min-width: 500px;
-    align-self: center;
-    justify-self: center;
+.files-container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .files-heading {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-decoration: underline;
+  }
+  
+  .file-upload {
     display: flex;
     flex-direction: column;
-}
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .file-card {
+    background: grey;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .file-name {
+    flex-grow: 1;
+  }
+  
+  .file-actions {
+    display: flex;
+    gap: 10px;
+  }
 
-form {
+.form-container {
     display: flex;
     flex-direction: column;
-}
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
+  .input-field {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .submit-button {
+    width: 100%;
+    margin-top: 5rem;
+  }
+  .MuiInputBase-input {
+    background: transparent;
+  }

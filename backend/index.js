@@ -19,6 +19,7 @@ mongoose.connect('mongodb://localhost:27017/FarMartDB', {
 });
 
 const fileSchema = new mongoose.Schema({
+    originalName: String,
     fileName: String,
     originalLink: String,
     shortLink: String,
@@ -93,7 +94,8 @@ const storage = getStorage();
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.post("/upload", upload.single("file"), async (req, res) => {
-    const storageRef = ref(storage, `files/${req.file.originalname + new Date()}`);
+    const fileName = `files/${req.file.originalname + new Date()}`;
+    const storageRef = ref(storage, fileName);
     const metadata = {
         contentType: req.file.mimetype,
     }
@@ -112,7 +114,8 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
         if (user) {
             user.files.push({
-                fileName: req.file.originalname,
+                originalName: req.file.originalname,
+                fileName,
                 originalLink: downloadUrl,
                 // shortLink: shortLink,
                 expiringDate: expirationDate,
@@ -123,7 +126,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
                 return expirationTime >= currentTime;
             });
             await user.save();
-            return res.status(200).json({ status: 200, message: 'File uploaded successfully', files: user.files });
+            return res.status(200).json({ status: 200, message: 'File uploaded successfully', data: { files: user.files } });
         } else {
             return res.status(404).json({ status: 404, message: 'User not found' });
         }
@@ -133,5 +136,44 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
 });
 
+app.get('/files', async (req, res) => {
+    const userId = req.query.userId;
+    try {
+        const user = await UserModel.findOne({ userId });
+
+        if (user) {
+            return res.status(200).json({ status: 200, data: { files: user.files } });
+        } else {
+            return res.status(404).json({ status: 404, message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching user files:', error);
+        return res.status(500).json({ status: 500, message: 'Internal server error' });
+    }
+});
+
+app.delete('/delete', async (req, res) => {
+    const { fileIdx, userId } = req.body;
+  console.log(fileIdx, userId);
+    try {
+      const user = await UserModel.findOne({ userId });
+  
+      if (!user) {
+        return res.status(404).json({ status: 404, message: 'User not found' });
+      }
+  
+      // Filter out the file to be deleted
+      user.files = user.files.filter((file, index) => index !== fileIdx);
+  
+      // Save the updated user object
+      await user.save();
+  
+      return res.status(200).json({ status: 200, message: 'File deleted successfully', data: { files: user.files } });
+    } catch (error) {
+      console.error('File deletion error:', error);
+      return res.status(500).json({ status: 500, message: 'Internal server error.' });
+    }
+  });
+  
 
 app.listen(5000, () => console.log("server started at port 5000"));
