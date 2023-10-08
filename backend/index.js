@@ -97,10 +97,41 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const metadata = {
         contentType: req.file.mimetype,
     }
-    const snapshot = await uploadBytesResumable(storageRef, req,file.buffer, metadata);
-    const downloadUrl = await getDownloadUrl(snapshot.ref);
-    console.log(downloadUrl);
-    return res.status(200).json({ status: 200, message: 'File uploaded successfully', downloadUrl });
+
+    try {
+        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+
+        const downloadUrl = await getDownloadURL(snapshot.ref);
+        // const shortLink = generateShortLink(downloadUrl);
+
+        const expirationDate = new Date();
+        expirationDate.setHours(expirationDate.getHours() + 1);
+
+        const userId = req.body.userId;
+        const user = await UserModel.findOne({ userId });
+
+        if (user) {
+            user.files.push({
+                fileName: req.file.originalname,
+                originalLink: downloadUrl,
+                // shortLink: shortLink,
+                expiringDate: expirationDate,
+            });
+            const currentTime = new Date();
+            user.files = user.files.filter((file) => {
+                const expirationTime = new Date(file.expiringDate);
+                return expirationTime >= currentTime;
+            });
+            await user.save();
+            return res.status(200).json({ status: 200, message: 'File uploaded successfully', files: user.files });
+        } else {
+            return res.status(404).json({ status: 404, message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('File upload error:', error);
+        return res.status(500).json({ status: 500, message: 'Internal server error.' });
+    }
 });
 
-app.listen(80, () => console.log("server started at port 5000"));
+
+app.listen(5000, () => console.log("server started at port 5000"));
