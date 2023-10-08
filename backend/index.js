@@ -1,5 +1,5 @@
 import express from "express";
-import fileUpload from "express-fileupload";
+import { shorten } from 'tinyurl';
 import cors from "cors";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
@@ -104,7 +104,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
 
         const downloadUrl = await getDownloadURL(snapshot.ref);
-        // const shortLink = generateShortLink(downloadUrl);
+        const shortLink = await shorten(downloadUrl);
 
         const expirationDate = new Date();
         expirationDate.setHours(expirationDate.getHours() + 1);
@@ -117,7 +117,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
                 originalName: req.file.originalname,
                 fileName,
                 originalLink: downloadUrl,
-                // shortLink: shortLink,
+                shortLink,
                 expiringDate: expirationDate,
             });
             const currentTime = new Date();
@@ -154,7 +154,6 @@ app.get('/files', async (req, res) => {
 
 app.delete('/delete', async (req, res) => {
     const { fileIdx, userId } = req.body;
-  console.log(fileIdx, userId);
     try {
       const user = await UserModel.findOne({ userId });
   
