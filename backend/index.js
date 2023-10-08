@@ -1,8 +1,13 @@
 import express from "express";
+import fileUpload from "express-fileupload";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
+import multer from "multer";
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+
 
 const app = express();
 app.use(cors());
@@ -44,9 +49,8 @@ app.post('/register', async (req, res) => {
             password: hashedPassword,
             files: [],
         });
-        console.log(userId);
         await newUser.save();
-        return res.status(200).json({ status: 200, message: 'Registration successful', data: {userId} });
+        return res.status(200).json({ status: 200, message: 'Registration successful', data: { userId, files: [] } });
     } catch (error) {
         return res.status(500).json({ status: 500, message: 'Internal server error' });
     }
@@ -60,9 +64,9 @@ app.post("/login", async (req, res) => {
             return res.status(401).json({ status: 401, message: 'No existing user' });
         }
         const passwordMatch = await bcrypt.compare(password, user.password);
-        // console.log(passwordMatch)
+
         if (passwordMatch) {
-            return res.status(200).json({ status: 200, message: 'Login successful' });
+            return res.status(200).json({ status: 200, message: 'Login successful', data: { userId: user.userId, files: user.files } });
         } else {
             return res.status(401).json({ status: 401, message: 'Invalid password' });
         }
@@ -72,4 +76,31 @@ app.post("/login", async (req, res) => {
     }
 });
 
-app.listen(5000, () => console.log("server started at port 5000"));
+const firebaseConfig = {
+    apiKey: "AIzaSyBeCystbn-RmxdwKP53diMyGGMHSIajFco",
+    authDomain: "farmart-507fa.firebaseapp.com",
+    projectId: "farmart-507fa",
+    storageBucket: "farmart-507fa.appspot.com",
+    messagingSenderId: "20405436760",
+    appId: "1:20405436760:web:abe87467937c5c2de0a52d",
+    measurementId: "G-8397BNB5KF"
+};
+
+initializeApp(firebaseConfig);
+
+const storage = getStorage();
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post("/upload", upload.single("file"), async (req, res) => {
+    const storageRef = ref(storage, `files/${req.file.originalname + new Date()}`);
+    const metadata = {
+        contentType: req.file.mimetype,
+    }
+    const snapshot = await uploadBytesResumable(storageRef, req,file.buffer, metadata);
+    const downloadUrl = await getDownloadUrl(snapshot.ref);
+    console.log(downloadUrl);
+    return res.status(200).json({ status: 200, message: 'File uploaded successfully', downloadUrl });
+});
+
+app.listen(80, () => console.log("server started at port 5000"));

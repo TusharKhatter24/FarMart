@@ -24,3 +24,16 @@ export const register = async (formData) => {
     throw error;
   }
 };
+
+export const upload = async (formData) => {
+  try {
+    const response = await api.post("/upload", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Important for file upload
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -5,7 +5,6 @@ import { logoutUser } from "../Utils/actions";
 const Header = () => {
 
     const isLoggedIn = useSelector((state) => state?.login?.isLoggedIn);
-    const userId = useSelector((state) => state?.login?.userId);
 
     const dispatch = useDispatch();
 

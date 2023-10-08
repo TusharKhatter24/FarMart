@@ -33,6 +33,15 @@
     justify-self: center;
 }
 
+.files {
+    border: 1px solid black;
+    min-width: 500px;
+    align-self: center;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+}
+
 form {
     display: flex;
     flex-direction: column;

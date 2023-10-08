@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { loginUser } from "../Utils/actions";
 import { login } from "../Utils/api";
 import CustomSnackbar from "../Common/Snackbar";
 
@@ -15,6 +17,7 @@ const Login = () => {
   });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +29,7 @@ const Login = () => {
     try {
       const response = await login(formData);
       if (response.status === 200) {
-        console.log("Login Successful");
+        dispatch(loginUser(response.data.userId));
         setSnackbarSeverity('success');
         setSnackbarMessage('Login successful!');
         setOpenSnackbar(true);
