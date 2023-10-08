@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
-// const mongoose = require('mongoose');
+import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 app.use(cors());
@@ -20,6 +21,7 @@ const fileSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
+    userId: String,
     name: String,
     email: String,
     password: String,
@@ -30,45 +32,43 @@ const userSchema = new mongoose.Schema({
 const UserModel = mongoose.model('User', userSchema);
 const FileModel = mongoose.model('File', fileSchema);
 
-app.post("/register", (req, res) => {
+app.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
-
-    const newUser = new UserModel({
-        name,
-        email,
-        password,
-        files: [],
-    });
-
-    newUser.save()
-    .then(() => {
-      console.log('User created successfully');
-    })
-    .catch((err) => {
-      console.error('Error creating user:', err);
-    });
-
-    res.status(200).json({ status: 200, message: "Registration successful" });
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const userId = uuidv4();
+        const newUser = new UserModel({
+            userId,
+            name,
+            email,
+            password: hashedPassword,
+            files: [],
+        });
+        console.log(userId);
+        await newUser.save();
+        return res.status(200).json({ status: 200, message: 'Registration successful', data: {userId} });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: 'Internal server error' });
+    }
 });
 
-const users = [
-    {
-        id: 1,
-        email: "t@k.com",
-        password: "tk24",
-    },
-];
-
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
     const { email, password } = req.body;
-    const user = users.find((u) => u.email === email && u.password === password);
-
-    if (user) {
-        // Successful login
-        res.status(200).json({ status: 200, message: "Login successful" });
-    } else {
-        // Invalid credentials
-        res.status(401).json({ status: 401, message: "Login failed" });
+    try {
+        const user = await UserModel.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ status: 401, message: 'No existing user' });
+        }
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        // console.log(passwordMatch)
+        if (passwordMatch) {
+            return res.status(200).json({ status: 200, message: 'Login successful' });
+        } else {
+            return res.status(401).json({ status: 401, message: 'Invalid password' });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ status: 500, message: 'Internal server error' });
     }
 });
 

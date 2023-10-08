@@ -34,7 +34,7 @@ const Login = () => {
     } catch (error) {
       console.error("Login failed:", error);
       setSnackbarSeverity('error');
-      setSnackbarMessage('Login failed.');
+      setSnackbarMessage(error?.response?.data?.message ?? 'Login failed.');
       setOpenSnackbar(true);
     }
   };
@@ -45,29 +45,25 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="login">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
+        <p>Email</p>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+        <p>Password</p>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+        />
         <button type="submit">Login</button>
       </form>
       <CustomSnackbar

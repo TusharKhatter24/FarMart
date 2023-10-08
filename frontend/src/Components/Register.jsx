@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { loginUser } from "../Utils/actions";
 import { register } from "../Utils/api";
 import CustomSnackbar from "../Common/Snackbar";
 
@@ -16,6 +18,7 @@ const Register = () => {
     });
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -31,30 +34,30 @@ const Register = () => {
             setSnackbarMessage('Some fields are empty.');
             setOpenSnackbar(true);
             return; // Do not send data to the server
-          }
-          
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(formData.email)) {
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
             // Email format is invalid
             setSnackbarSeverity('error');
             setSnackbarMessage('Email format is invalid.');
             setOpenSnackbar(true);
             return; // Do not send data to the server
-          }
+        }
 
         try {
             const response = await register(formData);
             if (response.status === 200) {
-                console.log("Registration successful!", response);
+                dispatch(loginUser(response.data.userId));
                 setSnackbarSeverity('success');
                 setSnackbarMessage('Registration successful!');
                 setOpenSnackbar(true);
             }
         } catch (error) {
-            console.error("Registration failed:", error);
             setSnackbarSeverity('error');
             setSnackbarMessage('Registration failed.');
             setOpenSnackbar(true);
+            console.error("Registration failed:", error);
         }
     };
 
@@ -64,39 +67,33 @@ const Register = () => {
     };
 
     return (
-        <div>
+        <div className="register">
             <h2>Registration</h2>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="name">Name:</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="text"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
-                </div>
+                <p>Name</p>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                />
+                <p>Email</p>
+                <input
+                    type="text"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                />
+                <p>Password</p>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                />
                 <button type="submit">Register</button>
             </form>
             <CustomSnackbar

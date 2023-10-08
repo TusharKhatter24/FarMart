@@ -1,4 +1,3 @@
-// api.js
 import axios from "axios";
 
 // Create a common Axios instance for your API requests
