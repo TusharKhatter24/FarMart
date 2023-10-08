@@ -1,8 +1,13 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { login } from "../Utils/api";
+import CustomSnackbar from "../Common/Snackbar";
 
 const Login = () => {
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,14 +24,24 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/login", formData);
+      const response = await login(formData);
       if (response.status === 200) {
-        navigate("/files");
+        console.log("Login Successful");
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Login successful!');
+        setOpenSnackbar(true);
       }
-      console.log("Login Successful");
     } catch (error) {
       console.error("Login failed:", error);
+      setSnackbarSeverity('error');
+      setSnackbarMessage('Login failed.');
+      setOpenSnackbar(true);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    setOpenSnackbar(false);
+    if (snackbarSeverity === 'success') navigate('/files');
   };
 
   return (
@@ -55,6 +70,12 @@ const Login = () => {
         </div>
         <button type="submit">Login</button>
       </form>
+      <CustomSnackbar
+        open={openSnackbar}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+        onClose={handleSnackbarClose}
+      />
     </div>
   );
 };
