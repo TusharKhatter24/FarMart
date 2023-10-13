@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create a common Axios instance for your API requests
 const api = axios.create({
-  baseURL: "https://far-mart-1b30htw2k-tusharkhatter24s-projects.vercel.app/", // Set your backend API base URL here
+  baseURL: "https://farmart-chi.vercel.app/", // Set your backend API base URL here
 });
 
 // Login API function
